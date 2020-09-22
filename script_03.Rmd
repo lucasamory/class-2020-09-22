@@ -39,9 +39,11 @@ sep_old <-
   rename(id = course_id,
          title = course_title,
          name = course_name,
-         department = course_department) %>% 
-  filter(u_grad > 10)
-
+         department = course_department) %>%
+  filter(u_grad > 10) %>%
+  group_by(title, id, department, name) %>%
+  summarize(u_grad = sum(u_grad), .groups = "drop") 
+view(sep_old)
 # But this is not correct! Look for Gov 50: Data. What do you see? What can you
 # do to clean it up?
 ```
@@ -51,7 +53,21 @@ sep_old <-
 
 **Prompt:** Read in and clean the new data, creating an object called `sep_new`. 
 
-
+sep_new <- 
+  read_excel("new_data/class_enrollment_summary_by_term_9-22-2020.xlsx", 
+             skip = 3) %>% 
+  clean_names() %>% 
+  filter(! is.na(course_title)) %>% 
+  select(-grad, -non_degree, -x_reg, -vus, -employee, 
+         -withdraw, -total, -instructor_full_name, -course_section_code) %>%
+  rename(id = course_id,
+         title = course_title,
+         name = course_name,
+         department = course_department) %>%
+  filter(u_grad > 10) %>%
+  group_by(title, id, department, name) %>%
+  summarize(u_grad = sum(u_grad), .groups = "drop") 
+view(sep_new)
 
 ### Scene 2
 
@@ -60,12 +76,16 @@ sep_old <-
 
 Before we start on the model, Wisdom suggests we should:
 
-
+* Make assumptions
+* Throw out duplicate rows
+* Throw out columns we don't care about
+* Define terms of potential outcomes
 
 
 After we have a model, Temperance suggests we should:
 
-
+* Acknowledge that this year is different from others, which would affect external validity, so it can't be generalized.
+* Since a large amount of the population at Harvard is taking a leave of absence, and they were significant enough to potentially sway the data, we need to acknowledge that they
 
 ### Scene 3
 
